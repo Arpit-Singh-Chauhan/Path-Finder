@@ -86,12 +86,6 @@ void entry_graph(vector<pair<pair<int, int>, int>>& p, vector<vector<Edge>>& g){
     }
 }
 
-void inputs(int a, int b, int c, vector<pair<pair<int, int>, int>>& p){
-
-    p.push_back({{a,b},c});
-    
-}
-
 int main(){
     int V=6;
     vector<vector<Edge>> g(V);
@@ -145,3 +139,4 @@ int main(){
 
 
 // improvements - make and shows graph when we enter the entries
+// Efficient implementation using **Adjacency Lists** and a **Priority Queue (Min Heap)**.
