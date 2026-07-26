@@ -7,7 +7,12 @@ OUTPUT - This will give the shorrtest path for the journey
 #include <vector>
 #include <list>
 #include <queue>
+#include <fstream>   // File handling
+#include <cstdlib>   // system()
 using namespace std;
+
+const string DOT_FILE = "graph.dot";
+const string PNG_FILE = "graph.png";
 
 class Edge{
     public:
@@ -20,13 +25,13 @@ class Edge{
     }
 };
 
-void path(int src, int end, vector<vector<Edge>>&g, int V){
+void path(int source, int dest, vector<vector<Edge>>&graph, int V){
     vector<int>dis(V, INT_MAX);
     vector<vector<int>>stpath(V);
-    dis[src] = 0;
-    stpath[src].push_back(src);
+    dis[source] = 0;
+    stpath[source].push_back(source);
     priority_queue<pair<int, int> , vector<pair<int, int>>, greater<pair<int, int>> > pq;
-    pq.push({0,src});
+    pq.push({0,source});
 
 
     while(pq.size() > 0){
@@ -37,8 +42,8 @@ void path(int src, int end, vector<vector<Edge>>&g, int V){
         if(d > dis[u])
             continue;
 
-        for(Edge e: g[u]){
-            if(dis[e.v] >= dis[u] + e.wt){
+        for(const Edge &e: graph[u]){
+            if(dis[e.v] > dis[u] + e.wt){
                 dis[e.v] = dis[u] + e.wt;
                 stpath[e.v] = stpath[u];
                 stpath[e.v].push_back(e.v);
@@ -47,7 +52,7 @@ void path(int src, int end, vector<vector<Edge>>&g, int V){
         }
     }
 
-    cout << "Distances from " << src << endl;
+    cout << "Distances from " << source << endl;
     for(int i=0; i<V; i++){
         if(dis[i]==INT_MAX)
             cout<<"INF ";
@@ -57,7 +62,7 @@ void path(int src, int end, vector<vector<Edge>>&g, int V){
     
         cout << endl;
 
-    cout << "Paths from " << src << " to" << endl;
+    cout << "Paths from " << source << " to" << endl;
 
     for(int i=0; i<V; i++){
         cout<< i << " : ";
@@ -69,43 +74,106 @@ void path(int src, int end, vector<vector<Edge>>&g, int V){
 
     string topath = "";
 
-    for(int i =0; i<stpath[end].size(); i++){
-        topath += to_string(stpath[end][i]) ; 
-        if(i != stpath[end].size()-1){
+    for(int i =0; i<stpath[dest].size(); i++){
+        topath += to_string(stpath[dest][i]) ; 
+        if(i != stpath[dest].size()-1){
             topath += " -> ";
         }
     }
-    cout << "Shortest path from " << src << " to " << end << " is " << topath << " with the distance of " << dis[end];
+
+    if(dis[dest]==INT_MAX){
+    cout<<"No path exists from " << source << " to " << dest;
+    return;
+    }
+
+    cout << "Shortest path from " << source << " to " << dest << " is " << topath << " with the distance of " << dis[dest];
 
 }
 
-void entry_graph(vector<pair<pair<int, int>, int>>& p, vector<vector<Edge>>& g){
-    for(int i=0; i<p.size(); i++){
-        g[p[i].first.first].push_back(Edge(p[i].first.second, p[i].second));            // u -> v
-        g[p[i].first.second].push_back(Edge(p[i].first.first, p[i].second));            // v -> u
+void entry_graph(vector<pair<pair<int, int>, int>>& edges, vector<vector<Edge>>& graph){
+    for(int i=0; i<edges.size(); i++){
+        graph[edges[i].first.first].push_back(Edge(edges[i].first.second, edges[i].second));            // u -> v
+        graph[edges[i].first.second].push_back(Edge(edges[i].first.first, edges[i].second));            // v -> u
     }
 }
 
+
+void graph_generate(const vector<vector<Edge>>& graph, int source, int dest){
+
+    ofstream file(DOT_FILE);
+
+    file << "graph G{\n";
+        
+        file<< "ratio = fill \n";
+        file<<  "size = \"10,8\" \n";
+        file<<  "nodesep = 0.8 \n";          
+        file<<  "ranksep = 1.2 \n";
+
+        file << "node [ \n";
+        file<<  "shape=circle \n";
+        file<<  "style=filled \n";
+        file<<  "fillcolor=lightblue \n";
+        file<<  "fontsize=40 \n";
+        file<<  "penwidth=4 \n] \n";
+             
+
+        file << "edge [ \n";
+        file<<  "fontsize=50 \n";
+        file<<  "penwidth = 4 \n] \n";
+
+
+    for (int u=0; u<graph.size(); u++){
+
+            if(u == source)
+            {
+                file << u
+                    << " [fillcolor=green];\n";
+            }
+            else if(u == dest)
+            {
+                file << u
+                    << " [fillcolor=red];\n";
+            }
+
+
+        for(auto edge:graph[u]){
+            if(u<edge.v){
+                file<<u<<" -- "<<edge.v
+                    <<" [label=\""<<edge.wt<<"\"];\n";
+            }
+        }
+    }
+    file<<"}";
+
+    file.close();
+}
+
 int main(){
-    int V=6;
-    vector<vector<Edge>> g(V);
-    // g[0].push_back(Edge(1,2));
-    // g[0].push_back(Edge(2,4));
 
-    // g[1].push_back(Edge(2,1));
-    // g[1].push_back(Edge(3,7));
+    int V;
+    cout << "Enter number of places (node): " ;
+    cin >> V ;
 
-    // g[2].push_back(Edge(4,3));
+    vector<vector<Edge>> graph(V);
 
-    // g[3].push_back(Edge(5,1));
+    // graph[0].push_back(Edge(1,2));
+    // graph[0].push_back(Edge(2,4));
 
-    // g[4].push_back(Edge(3,2));
-    // g[4].push_back(Edge(5,5));
+    // graph[1].push_back(Edge(2,1));
+    // graph[1].push_back(Edge(3,7));
+
+    // graph[2].push_back(Edge(4,3));
+
+    // graph[3].push_back(Edge(5,1));
+
+    // graph[4].push_back(Edge(3,2));
+    // graph[4].push_back(Edge(5,5));
 
     
-    // vector<pair<pair<int, int>, int>> p = {{{0,1},2}, {{0,2},4}, {{1,2},1}, {{1,3},7}, {{2,4},3}, {{3,5},1}, {{4,3},2}, {{4,5},5}};
+    // vector<pair<pair<int, int>, int>> edges = {{{0,1},2}, {{0,2},4}, {{1,2},1}, {{1,3},7}, {{2,4},3}, {{3,5},1}, {{4,3},2}, {{4,5},5}};
     
-    vector<pair<pair<int, int>, int>> p ;
+
+    vector<pair<pair<int, int>, int>> edges ;
 
     cout << "Enter the linked palces with distance between them to create a map." << endl;
     cout << "Enter first place(a) and second palce(b) with diatance(c) between them (a->b)  [-1 to stop] " << endl;
@@ -113,30 +181,39 @@ int main(){
     int a=0, b=0, c=0;
     while(true){
         cout << "a->b c: ";
-        cin >> a >> b >> c ;
-
+        cin >> a;
         if(a == -1) break;
 
-        p.push_back({{a,b},c});
+        cin >> b >> c;
+
+        if(a<0 || a>=V || b<0 || b>=V){
+        cout<<"Invalid node\n";
+        continue;
+        }
+
+        edges.push_back({{a,b},c});
     }
 
-    entry_graph(p, g);
+    entry_graph(edges, graph);
     
     
-    int srt, end;
+    int source, dest;
 
     cout << "Enter starting and finish point of the journey to find shortest path and its distance" << endl;
 
-    cout << "start: ";
-    cin >> srt;
-    cout << "end: ";
-    cin >> end;
+    cout << "Start: ";
+    cin >> source;
+    cout << "Destination: ";
+    cin >> dest;
 
 
-    path(srt, end, g, V);
+    path(source, dest, graph, V);
+
+    graph_generate(graph, source, dest);
+
+    string command = "dot -Tpng " + DOT_FILE + " -o " + PNG_FILE;
+    system(command.c_str());
+
+    string open = "start " + PNG_FILE;
+    system(open.c_str());
 }
-
-
-
-// improvements - make and shows graph when we enter the entries
-// Efficient implementation using **Adjacency Lists** and a **Priority Queue (Min Heap)**.
