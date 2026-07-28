@@ -50,7 +50,7 @@ A C++ application that simulates a basic map navigation system by allowing users
 
 ## 📷 Example
 
--Colour Scheme
+- Colour Scheme
    - Default Nodes(places) - Light Blue
    - Default Edges(roads) - Black
    - Start/Source - Green
