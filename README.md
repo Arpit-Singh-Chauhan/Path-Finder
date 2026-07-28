@@ -50,7 +50,14 @@ A C++ application that simulates a basic map navigation system by allowing users
 
 ## 📷 Example
 
-![map (graph)](graph.svg)
+-Colour Scheme
+   - Default Nodes(places) - Light Blue
+   - Default Edges(roads) - Black
+   - Start/Source - Green
+   - Destination - Red
+   - Path - Light Yellow
+
+![map (graph)](graph.png)
 
 ### Input
 
