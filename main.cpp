@@ -25,6 +25,78 @@ class Edge{
     }
 };
 
+
+void graph_generate(const vector<vector<Edge>>& graph, int source, int dest, vector<int>& path){
+
+    ofstream file(DOT_FILE);
+
+    file << "graph G{\n";
+        
+        file<< "ratio = fill \n";
+        file<<  "size = \"10,8\" \n";
+        file<<  "nodesep = 0.8 \n";          
+        file<<  "ranksep = 1.2 \n";
+
+        file << "node [ \n";
+        file<<  "shape=circle \n";
+        file<<  "style=filled \n";
+        file<<  "fillcolor=lightblue \n";
+        file<<  "fontsize=40 \n";
+        file<<  "penwidth=4 \n] \n";
+             
+
+        file << "edge [ \n";
+        file<<  "fontsize=50 \n";
+        file<<  "penwidth = 4 \n] \n";
+
+    vector<bool> isPath(graph.size(), false);
+
+        for(int node : path){
+            isPath[node] = true;
+        }
+
+        for(int u = 0; u < graph.size(); u++){
+            if(u == source){
+                file << u << " [fillcolor=green];\n";
+            }
+            else if(u == dest){
+                file << u << " [fillcolor=red];\n";
+            }
+            else if(isPath[u]){
+                file << u << " [fillcolor=lightyellow];\n";
+            }
+
+            for(const auto &edge : graph[u]){
+                if(u < edge.v){
+                    bool highlight = false;
+
+                    for(int i = 0; i < path.size() - 1; i++){
+                        if((u == path[i] && edge.v == path[i + 1]) ||
+                        (u == path[i + 1] && edge.v == path[i])){
+                            highlight = true;
+                            break;
+                        }
+                    }
+
+                    file << u << " -- " << edge.v;
+
+                    if(highlight){
+                        file << " [label=\"" << edge.wt
+                            << "\", color=orange, penwidth=5]";
+                    }
+                    else{
+                        file << " [label=\"" << edge.wt << "\"]";
+                    }
+
+                    file << ";\n";
+                }
+            }
+        }
+    file<<"}";
+
+    file.close();
+}
+
 void path(int source, int dest, vector<vector<Edge>>&graph, int V){
     vector<int>dis(V, INT_MAX);
     vector<vector<int>>stpath(V);
@@ -52,7 +124,7 @@ void path(int source, int dest, vector<vector<Edge>>&graph, int V){
         }
     }
 
-    cout << "Distances from " << source << endl;
+cout << "Distances from " << source << endl;
     for(int i=0; i<V; i++){
         if(dis[i]==INT_MAX)
             cout<<"INF ";
@@ -62,8 +134,7 @@ void path(int source, int dest, vector<vector<Edge>>&graph, int V){
     
         cout << endl;
 
-    cout << "Paths from " << source << " to" << endl;
-
+cout << "Paths from " << source << " to" << endl;
     for(int i=0; i<V; i++){
         cout<< i << " : ";
         for(int j=0; j<stpath[i].size(); j++){
@@ -81,6 +152,8 @@ void path(int source, int dest, vector<vector<Edge>>&graph, int V){
         }
     }
 
+    graph_generate(graph, source, dest, stpath[dest]);
+
     if(dis[dest]==INT_MAX){
     cout<<"No path exists from " << source << " to " << dest;
     return;
@@ -97,56 +170,6 @@ void entry_graph(vector<pair<pair<int, int>, int>>& edges, vector<vector<Edge>>&
     }
 }
 
-
-void graph_generate(const vector<vector<Edge>>& graph, int source, int dest){
-
-    ofstream file(DOT_FILE);
-
-    file << "graph G{\n";
-        
-        file<< "ratio = fill \n";
-        file<<  "size = \"10,8\" \n";
-        file<<  "nodesep = 0.8 \n";          
-        file<<  "ranksep = 1.2 \n";
-
-        file << "node [ \n";
-        file<<  "shape=circle \n";
-        file<<  "style=filled \n";
-        file<<  "fillcolor=lightblue \n";
-        file<<  "fontsize=40 \n";
-        file<<  "penwidth=4 \n] \n";
-             
-
-        file << "edge [ \n";
-        file<<  "fontsize=50 \n";
-        file<<  "penwidth = 4 \n] \n";
-
-
-    for (int u=0; u<graph.size(); u++){
-
-            if(u == source)
-            {
-                file << u
-                    << " [fillcolor=green];\n";
-            }
-            else if(u == dest)
-            {
-                file << u
-                    << " [fillcolor=red];\n";
-            }
-
-
-        for(auto edge:graph[u]){
-            if(u<edge.v){
-                file<<u<<" -- "<<edge.v
-                    <<" [label=\""<<edge.wt<<"\"];\n";
-            }
-        }
-    }
-    file<<"}";
-
-    file.close();
-}
 
 int main(){
 
@@ -170,29 +193,29 @@ int main(){
     // graph[4].push_back(Edge(5,5));
 
     
-    // vector<pair<pair<int, int>, int>> edges = {{{0,1},2}, {{0,2},4}, {{1,2},1}, {{1,3},7}, {{2,4},3}, {{3,5},1}, {{4,3},2}, {{4,5},5}};
+    vector<pair<pair<int, int>, int>> edges = {{{0,1},2}, {{0,2},4}, {{1,2},1}, {{1,3},7}, {{2,4},3}, {{3,5},1}, {{4,3},2}, {{4,5},5}};
     
 
-    vector<pair<pair<int, int>, int>> edges ;
+    // vector<pair<pair<int, int>, int>> edges ;
 
-    cout << "Enter the linked palces with distance between them to create a map." << endl;
-    cout << "Enter first place(a) and second palce(b) with diatance(c) between them (a->b)  [-1 to stop] " << endl;
+    // cout << "Enter the linked palces with distance between them to create a map." << endl;
+    // cout << "Enter first place(a) and second palce(b) with diatance(c) between them (a->b)  [-1 to stop] " << endl;
 
-    int a=0, b=0, c=0;
-    while(true){
-        cout << "a->b c: ";
-        cin >> a;
-        if(a == -1) break;
+    // int a=0, b=0, c=0;
+    // while(true){
+    //     cout << "a->b c: ";
+    //     cin >> a;
+    //     if(a == -1) break;
 
-        cin >> b >> c;
+    //     cin >> b >> c;
 
-        if(a<0 || a>=V || b<0 || b>=V){
-        cout<<"Invalid node\n";
-        continue;
-        }
+    //     if(a<0 || a>=V || b<0 || b>=V){
+    //     cout<<"Invalid node\n";
+    //     continue;
+    //     }
 
-        edges.push_back({{a,b},c});
-    }
+    //     edges.push_back({{a,b},c});
+    // }
 
     entry_graph(edges, graph);
     
@@ -209,7 +232,7 @@ int main(){
 
     path(source, dest, graph, V);
 
-    graph_generate(graph, source, dest);
+    // graph_generate(graph, source, dest);
 
     string command = "dot -Tpng " + DOT_FILE + " -o " + PNG_FILE;
     system(command.c_str());
