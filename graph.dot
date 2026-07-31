@@ -15,22 +15,18 @@ edge [
 fontsize=50 
 penwidth = 4 
 ] 
-0 [fillcolor=green];
-0 -- 1 [label="5"];
-0 -- 7 [label="2", color=orange, penwidth=5];
-1 -- 2 [label="4"];
-1 -- 8 [label="11"];
-2 -- 3 [label="3"];
-3 -- 4 [label="7"];
-3 -- 5 [label="6"];
-4 [fillcolor=red];
-4 -- 5 [label="5"];
-4 -- 8 [label="6", color=orange, penwidth=5];
-5 -- 6 [label="9"];
-6 [fillcolor=lightyellow];
-6 -- 7 [label="2", color=orange, penwidth=5];
-6 -- 8 [label="2", color=orange, penwidth=5];
-7 [fillcolor=lightyellow];
-7 -- 8 [label="8"];
-8 [fillcolor=lightyellow];
+  "A" [fillcolor=green];
+  "A" -- "B" [label="2", color=orange, penwidth=5];
+  "A" -- "C" [label="4"];
+  "B" [fillcolor=lightyellow];
+  "B" -- "C" [label="1", color=orange, penwidth=5];
+  "B" -- "D" [label="7"];
+  "C" [fillcolor=lightyellow];
+  "C" -- "E" [label="3", color=orange, penwidth=5];
+  "D" [fillcolor=lightyellow];
+  "D" -- "F" [label="1", color=orange, penwidth=5];
+  "D" -- "E" [label="2", color=orange, penwidth=5];
+  "E" [fillcolor=lightyellow];
+  "E" -- "F" [label="5"];
+  "F" [fillcolor=red];
 }

@@ -9,6 +9,8 @@ OUTPUT - This will give the shorrtest path for the journey
 #include <queue>
 #include <fstream>   // File handling
 #include <cstdlib>   // system()
+#include <unordered_map>
+#include <string>
 using namespace std;
 
 const string DOT_FILE = "graph.dot";
@@ -26,7 +28,41 @@ class Edge{
 };
 
 
-void graph_generate(const vector<vector<Edge>>& graph, int source, int dest, vector<int>& path){
+// Map manager to seamlessly handle string-to-int and int-to-string conversions
+class NodeManager {
+    unordered_map<string, int> nameToIndex;
+    vector<string> indexToName;
+
+public:
+    int getOrAddIndex(const string& name) {
+        if (nameToIndex.find(name) == nameToIndex.end()) {
+            nameToIndex[name] = indexToName.size();
+            indexToName.push_back(name);
+        }
+        return nameToIndex[name];
+    }
+
+    int getIndex(const string& name) const {
+        if (nameToIndex.find(name) != nameToIndex.end()) {
+            return nameToIndex.at(name);
+        }
+        return -1; // Not found
+    }
+
+    string getName(int index) const {
+        if (index >= 0 && index < indexToName.size()) {
+            return indexToName[index];
+        }
+        return "";
+    }
+
+    int size() const {
+        return indexToName.size();
+    }
+};
+
+
+void graph_generate(const vector<vector<Edge>>& graph, int source, int dest, vector<int>& path, const NodeManager& nodes){
 
     ofstream file(DOT_FILE);
 
@@ -57,15 +93,15 @@ void graph_generate(const vector<vector<Edge>>& graph, int source, int dest, vec
         }
 
         for(int u = 0; u < graph.size(); u++){
-            if(u == source){
-                file << u << " [fillcolor=green];\n";
-            }
-            else if(u == dest){
-                file << u << " [fillcolor=red];\n";
-            }
-            else if(isPath[u]){
-                file << u << " [fillcolor=lightyellow];\n";
-            }
+            string uName = nodes.getName(u);
+
+            if (u == source) {
+            file << "  \"" << uName << "\" [fillcolor=green];\n";
+        } else if (u == dest) {
+            file << "  \"" << uName << "\" [fillcolor=red];\n";
+        } else if (isPath[u]) {
+            file << "  \"" << uName << "\" [fillcolor=lightyellow];\n";
+        }
 
             for(const auto &edge : graph[u]){
                 if(u < edge.v){
@@ -79,30 +115,29 @@ void graph_generate(const vector<vector<Edge>>& graph, int source, int dest, vec
                         }
                     }
 
-                    file << u << " -- " << edge.v;
+                    string vName = nodes.getName(edge.v);
+                    file << "  \"" << uName << "\" -- \"" << vName << "\"";
 
-                    if(highlight){
-                        file << " [label=\"" << edge.wt
-                            << "\", color=orange, penwidth=5]";
-                    }
-                    else{
+                    if (highlight) {
+                        file << " [label=\"" << edge.wt << "\", color=orange, penwidth=5]";
+                    } else {
                         file << " [label=\"" << edge.wt << "\"]";
                     }
-
                     file << ";\n";
                 }
             }
         }
     file<<"}";
-
     file.close();
 }
 
-void path(int source, int dest, vector<vector<Edge>>&graph, int V){
+void path(int source, int dest, vector<vector<Edge>>&graph, int V, const NodeManager& nodes){
     vector<int>dis(V, INT_MAX);
     vector<vector<int>>stpath(V);
+
     dis[source] = 0;
     stpath[source].push_back(source);
+
     priority_queue<pair<int, int> , vector<pair<int, int>>, greater<pair<int, int>> > pq;
     pq.push({0,source});
 
@@ -125,21 +160,23 @@ void path(int source, int dest, vector<vector<Edge>>&graph, int V){
         }
     }
 
-cout << "Distances from " << source << endl;
+cout << "Distances from " << nodes.getName(source) << endl;
     for(int i=0; i<V; i++){
-        if(dis[i]==INT_MAX)
+        nodes.getName(source);
+        if(dis[i]==INT_MAX){
             cout<<"INF ";
-        else
+        }
+        else{
             cout<<dis[i]<<" ";
         }
-    
+        }
         cout << endl;
 
-cout << "Paths from " << source << " to" << endl;
+cout << "Paths from " << nodes.getName(source) << " to" << endl;
     for(int i=0; i<V; i++){
-        cout<< i << " : ";
+        cout<< nodes.getName(i) << " : ";
         for(int j=0; j<stpath[i].size(); j++){
-            cout << stpath[i][j]<< " ";
+            cout << nodes.getName(stpath[i][j])<< " ";
         }
         cout << endl;
     }
@@ -147,20 +184,20 @@ cout << "Paths from " << source << " to" << endl;
     string topath = "";
 
     for(int i =0; i<stpath[dest].size(); i++){
-        topath += to_string(stpath[dest][i]) ; 
+        topath += nodes.getName(stpath[dest][i]) ; 
         if(i != stpath[dest].size()-1){
             topath += " -> ";
         }
     }
 
-    graph_generate(graph, source, dest, stpath[dest]);
+    graph_generate(graph, source, dest, stpath[dest], nodes);
 
     if(dis[dest]==INT_MAX){
-    cout<<"No path exists from " << source << " to " << dest;
+    cout<<"No path exists from " << nodes.getName(source) << " to " << nodes.getName(dest);
     return;
     }
 
-    cout << "Shortest path from " << source << " to " << dest << " is " << topath << " with the distance of " << dis[dest];
+    cout << "Shortest path from " << nodes.getName(source) << " to " << nodes.getName(dest) << " is " << topath << " with the distance of " << dis[dest] << endl;
 
 }
 
@@ -174,70 +211,74 @@ void entry_graph(vector<pair<pair<int, int>, int>>& edges, vector<vector<Edge>>&
 
 int main(){
 
-    int V;
-    cout << "Enter number of places (node): " ;
-    cin >> V ;
+    NodeManager nodes;
+    struct InputEdge { string u, v; int wt; };
+    vector<InputEdge> inputEdges;
 
-    vector<vector<Edge>> graph(V);
-
-//Example:
-    // graph[0].push_back(Edge(1,2));
-    // graph[0].push_back(Edge(2,4));
-
-    // graph[1].push_back(Edge(2,1));
-    // graph[1].push_back(Edge(3,7));
-
-    // graph[2].push_back(Edge(4,3));
-
-    // graph[3].push_back(Edge(5,1));
-
-    // graph[4].push_back(Edge(3,2));
-    // graph[4].push_back(Edge(5,5));
+    cout << "Enter the connected places with distance between them." << endl;
+    cout << "Enter node 'exit' as first node to stop." << endl;
+    cout << "Format: [Place_A] [Place_B] [Distance]" << endl << endl;
     
     // vector<pair<pair<int, int>, int>> edges = {{{0,1},2}, {{0,2},4}, {{1,2},1}, {{1,3},7}, {{2,4},3}, {{3,5},1}, {{4,3},2}, {{4,5},5}};
-    
 
-    vector<pair<pair<int, int>, int>> edges ;
-
-    cout << "Enter the linked palces with distance between them to create a map." << endl;
-    cout << "Enter first place(a) and second palce(b) with diatance(c) between them (a->b)  [-1 to stop] " << endl;
-
-    int a=0, b=0, c=0;
     while(true){
+        string a, b;
+        int wt;
+
         cout << "a->b c: ";
         cin >> a;
-        if(a == -1) break;
+        if(a == "-1" || a == "exit") break;
 
-        cin >> b >> c;
+        cin >> b >> wt;
 
-        if(a<0 || a>=V || b<0 || b>=V){
-        cout<<"Invalid node\n";
-        continue;
-        }
+        inputEdges.push_back({a, b, wt});
 
-        edges.push_back({{a,b},c});
+        // Register nodes in NodeManager
+        nodes.getOrAddIndex(a);
+        nodes.getOrAddIndex(b);
     }
 
-    entry_graph(edges, graph);
+    int V = nodes.size();
+    if(V==0){
+        cout << "NO graph entered"<< endl;
+        return 0;
+    }
     
-    
-    int source, dest;
+    vector<vector<Edge>> graph(V);
+    for (const auto& edge : inputEdges) {
+        int u = nodes.getIndex(edge.u);
+        int v = nodes.getIndex(edge.v);
+        graph[u].push_back(Edge(v, edge.wt));
+        graph[v].push_back(Edge(u, edge.wt));
+    }
 
-    cout << "Enter starting and finish point of the journey to find shortest path and its distance" << endl;
+    string strsrc, strdest;
 
-    cout << "Start: ";
-    cin >> source;
-    cout << "Destination: ";
-    cin >> dest;
+    cout << "\nEnter starting and destination points:" << endl;
+
+    int source = -1, dest = -1;
+    while (source == -1) {
+        cout << "Start: ";
+        cin >> strsrc;
+        source = nodes.getIndex(strsrc);
+        if (source == -1) cout << "Node not found! Try again.\n";
+    }
+
+    while (dest == -1) {
+        cout << "Destination: ";
+        cin >> strdest;
+        dest = nodes.getIndex(strdest);
+        if (dest == -1) cout << "Node not found! Try again.\n";
+    }
 
 
-    path(source, dest, graph, V);
-
-    // graph_generate(graph, source, dest);
+    path(source, dest, graph, V, nodes);
 
     string command = "dot -Tpng " + DOT_FILE + " -o " + PNG_FILE;
     system(command.c_str());
 
     string open = "start " + PNG_FILE;
     system(open.c_str());
+
+    return 0;
 }
