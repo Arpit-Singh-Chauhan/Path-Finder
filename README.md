@@ -57,7 +57,7 @@ A C++ application that simulates a basic map navigation system by allowing users
    - Destination - Red
    - Path - Light Yellow
 
-![map (graph)](graph.png)
+![map (graph)](example.png)
 
 ### Input
 

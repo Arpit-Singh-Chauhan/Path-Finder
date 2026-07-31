@@ -36,7 +36,8 @@ void graph_generate(const vector<vector<Edge>>& graph, int source, int dest, vec
         file<<  "size = \"10,8\" \n";
         file<<  "nodesep = 0.8 \n";          
         file<<  "ranksep = 1.2 \n";
-
+        file<<  "pad = \"1.0\" \n";
+        
         file << "node [ \n";
         file<<  "shape=circle \n";
         file<<  "style=filled \n";
@@ -179,6 +180,7 @@ int main(){
 
     vector<vector<Edge>> graph(V);
 
+//Example:
     // graph[0].push_back(Edge(1,2));
     // graph[0].push_back(Edge(2,4));
 
@@ -191,31 +193,30 @@ int main(){
 
     // graph[4].push_back(Edge(3,2));
     // graph[4].push_back(Edge(5,5));
-
     
-    vector<pair<pair<int, int>, int>> edges = {{{0,1},2}, {{0,2},4}, {{1,2},1}, {{1,3},7}, {{2,4},3}, {{3,5},1}, {{4,3},2}, {{4,5},5}};
+    // vector<pair<pair<int, int>, int>> edges = {{{0,1},2}, {{0,2},4}, {{1,2},1}, {{1,3},7}, {{2,4},3}, {{3,5},1}, {{4,3},2}, {{4,5},5}};
     
 
-    // vector<pair<pair<int, int>, int>> edges ;
+    vector<pair<pair<int, int>, int>> edges ;
 
-    // cout << "Enter the linked palces with distance between them to create a map." << endl;
-    // cout << "Enter first place(a) and second palce(b) with diatance(c) between them (a->b)  [-1 to stop] " << endl;
+    cout << "Enter the linked palces with distance between them to create a map." << endl;
+    cout << "Enter first place(a) and second palce(b) with diatance(c) between them (a->b)  [-1 to stop] " << endl;
 
-    // int a=0, b=0, c=0;
-    // while(true){
-    //     cout << "a->b c: ";
-    //     cin >> a;
-    //     if(a == -1) break;
+    int a=0, b=0, c=0;
+    while(true){
+        cout << "a->b c: ";
+        cin >> a;
+        if(a == -1) break;
 
-    //     cin >> b >> c;
+        cin >> b >> c;
 
-    //     if(a<0 || a>=V || b<0 || b>=V){
-    //     cout<<"Invalid node\n";
-    //     continue;
-    //     }
+        if(a<0 || a>=V || b<0 || b>=V){
+        cout<<"Invalid node\n";
+        continue;
+        }
 
-    //     edges.push_back({{a,b},c});
-    // }
+        edges.push_back({{a,b},c});
+    }
 
     entry_graph(edges, graph);
     
