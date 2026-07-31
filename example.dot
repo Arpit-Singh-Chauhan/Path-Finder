@@ -18,15 +18,27 @@ graph G {
         penwidth = 4
     ]
 
-    0 -- 1 [label="2"]
-    0 -- 2 [label="4"]
-    1 -- 2 [label="1"]
-    1 -- 3 [label="7"]
-    2 -- 4 [label="3"]
-    3 -- 5 [label="1"]
-    4 -- 3 [label="2"]
-    4 -- 5 [label="5"]
+    0 -- 1 [label="2"];
+    0 -- 2 [label="4"];
+    1 [fillcolor=green];
+    1 -- 2 [label="1", color=orange, penwidth=5];
+    1 -- 3 [label="7"];
+    2 [fillcolor=lightyellow];
+    2 -- 4 [label="3", color=orange, penwidth=5];
+    3 [fillcolor=lightyellow];
+    3 -- 5 [label="1", color=orange, penwidth=5];
+    3 -- 4 [label="2", color=orange, penwidth=5];
+    4 [fillcolor=lightyellow];
+    4 -- 5 [label="5"];
+    5 [fillcolor=red];
 }
+
+// source [1] to destination [5] => Path - 1 -> 2 -> 4 -> 3 -> 5
+// source - red [1]
+// destination - green [5]
+// path => nodes - light yellow
+//         edges - yellow
+
 
 // dot -Tpng example.dot -o example.png - for .png file
 // dot -Tsvg example.dot -o example.svg - for .svg file
