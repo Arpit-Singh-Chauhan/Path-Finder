@@ -15,18 +15,22 @@ edge [
 fontsize=50 
 penwidth = 4 
 ] 
-  "A" [fillcolor=green];
-  "A" -- "B" [label="2", color=orange, penwidth=5];
-  "A" -- "C" [label="4"];
-  "B" [fillcolor=lightyellow];
-  "B" -- "C" [label="1", color=orange, penwidth=5];
-  "B" -- "D" [label="7"];
-  "C" [fillcolor=lightyellow];
-  "C" -- "E" [label="3", color=orange, penwidth=5];
-  "D" [fillcolor=lightyellow];
-  "D" -- "F" [label="1", color=orange, penwidth=5];
-  "D" -- "E" [label="2", color=orange, penwidth=5];
-  "E" [fillcolor=lightyellow];
-  "E" -- "F" [label="5"];
-  "F" [fillcolor=red];
+  "Sonipat" [fillcolor=green];
+  "Sonipat" -- "Delhi" [label="45", color=orange, penwidth=5];
+  "Sonipat" -- "Rohtak" [label="50"];
+  "Delhi" [fillcolor=lightyellow];
+  "Delhi" -- "Ghaziabad" [label="25", color=orange, penwidth=5];
+  "Delhi" -- "Noida" [label="20"];
+  "Delhi" -- "Behror" [label="125"];
+  "Rohtak" -- "Behror" [label="190"];
+  "Ghaziabad" [fillcolor=lightyellow];
+  "Ghaziabad" -- "Meerut" [label="55", color=orange, penwidth=5];
+  "Behror" -- "Jaipur" [label="150"];
+  "Meerut" [fillcolor=lightyellow];
+  "Meerut" -- "Shahjahanpur" [label="170", color=orange, penwidth=5];
+  "Shahjahanpur" [fillcolor=red];
+  "Shahjahanpur" -- "Bareilly" [label="80"];
+  "Jaipur" -- "Indore" [label="570"];
+  "Indore" -- "Narsinghpur" [label="300"];
+  "Narsinghpur" -- "Nagpur" [label="270"];
 }
